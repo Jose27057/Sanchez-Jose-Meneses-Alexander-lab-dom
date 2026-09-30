@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lab DOM</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+    .destacado { color: #17603f; }
+    .hecha .texto { text-decoration: line-through; color: #777; }
+    .texto { cursor: pointer; }
+    .error { color: #b3261e; min-height: 1.2em; margin: .2rem 0 .8rem; }
+    [aria-invalid="true"] { border-color: #b3261e; }
+    label { display: block; margin-top: .6rem; }
+  </style>
+</head>
+<body>
+  <h1 id="titulo">Mi primera página dinámica</h1>
+  <ul id="lista"></ul>
+
+  <!-- Parte 2.1 -->
+  <button id="saludar">Saludar</button>
+
+  <!-- Parte 2.2 -->
+  <h2>Tareas</h2>
+  <ul id="tareas">
+    <li><span class="texto">Estudiar el DOM</span> <button class="borrar">✕</button></li>
+    <li><span class="texto">Practicar eventos</span> <button class="borrar">✕</button></li>
+    <li><span class="texto">Validar formularios</span> <button class="borrar">✕</button></li>
+  </ul>
+
+  <!-- Parte 2.3 -->
+  <h2>Contacto</h2>
+  <form id="contacto">
+    <label for="mensaje">Mensaje</label>
+    <input id="mensaje" name="mensaje">
+    <button type="submit">Enviar</button>
+  </form>
+
+  <!-- Parte 3 -->
+  <h2>Registro</h2>
+  <form id="registro" novalidate>
+    <label for="nombre">Nombre</label>
+    <input id="nombre" name="nombre" aria-describedby="nombre-error">
+    <p id="nombre-error" class="error" aria-live="polite"></p>
+
+    <label for="correo">Correo</label>
+    <input id="correo" name="correo" type="email" required aria-describedby="correo-error">
+    <p id="correo-error" class="error" aria-live="polite"></p>
+
+    <label for="cedula">Cédula</label>
+    <input id="cedula" name="cedula" required
+           pattern="([1-9]|1[0-3]|PE|E|N)-\d{1,4}-\d{1,6}"
+           placeholder="8-123-4567" aria-describedby="cedula-error">
+    <p id="cedula-error" class="error" aria-live="polite"></p>
+
+    <label for="clave">Contraseña</label>
+    <input id="clave" name="clave" type="password" aria-describedby="clave-error">
+    <p id="clave-error" class="error" aria-live="polite"></p>
+
+    <label for="clave2">Confirmar contraseña</label>
+    <input id="clave2" name="clave2" type="password" aria-describedby="clave2-error">
+    <p id="clave2-error" class="error" aria-live="polite"></p>
+
+    <button type="submit">Crear cuenta</button>
+  </form>
+  <section id="resumen" aria-live="polite"></section>
+
+  <!-- defer: el script corre cuando el HTML ya está cargado -->
+  <script src="app.js" defer></script>
+</body>
+</html>

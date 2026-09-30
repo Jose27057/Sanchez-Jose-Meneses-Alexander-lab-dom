@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio DOM y Formularios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --paper:#f5f6f2; --surface:#ffffff; --sunk:#eceee8;
+  --ink:#1b2127; --muted:#58626c; --line:#dcdfd6;
+  --accent:#1f4fd1; --accent-soft:#e3eafc;
+  --mark:#f2d64b; --mark-ink:#2a2300;
+  --ok:#1d7f46; --ok-soft:#e1f3e8; --err:#c02b2b; --err-soft:#fbe7e6; --warn:#a86400;
+  --code-bg:#1d222a; --code-ink:#e4e8ee; --code-dim:#8b96a3; --code-key:#f2d64b; --code-str:#9fd99a; --code-fn:#8fb4ff;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#11151a; --surface:#181e25; --sunk:#0d1115;
+    --ink:#e6e9ec; --muted:#9aa4ae; --line:#29313a;
+    --accent:#86a6ff; --accent-soft:#1c2744;
+    --mark:#e3c63c; --mark-ink:#1c1700;
+    --ok:#4cc27f; --ok-soft:#14291d; --err:#ff7a70; --err-soft:#33191a; --warn:#f0a94a;
+    --code-bg:#0b0e12;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#11151a; --surface:#181e25; --sunk:#0d1115;
+  --ink:#e6e9ec; --muted:#9aa4ae; --line:#29313a;
+  --accent:#86a6ff; --accent-soft:#1c2744;
+  --mark:#e3c63c; --mark-ink:#1c1700;
+  --ok:#4cc27f; --ok-soft:#14291d; --err:#ff7a70; --err-soft:#33191a; --warn:#f0a94a;
+  --code-bg:#0b0e12;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:16px/1.6 var(--body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:32px}
+@media (min-width:1000px){.wrap{grid-template-columns:220px minmax(0,1fr)}}
+header.top{max-width:1120px;margin:0 auto;padding-block:40px 28px;border-bottom:1px solid var(--line);margin-bottom:32px}
+.eyebrow{font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font:800 clamp(32px,5vw,52px)/1.05 var(--display);margin:.35em 0 .3em;text-wrap:balance;letter-spacing:-.01em}
+h1 .js{background:var(--mark);color:var(--mark-ink);padding:0 .15em;border-radius:4px}
+.lead{font-size:18px;color:var(--muted);max-width:62ch;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:20px;font-size:14px}
+.meta b{font-weight:600}
+nav.toc{position:relative}
+@media (min-width:1000px){nav.toc .inner{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px)}}
+nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+nav.toc a{display:block;padding:6px 10px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:14px}
+nav.toc a:hover{background:var(--sunk)}
+nav.toc .grp{font:600 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:16px 10px 6px}
+@media (max-width:999px){nav.toc ol{flex-direction:row;flex-wrap:wrap}nav.toc .grp{display:none}nav.toc a{background:var(--surface);border:1px solid var(--line)}}
+main{min-width:0}
+section.part{padding-block:8px 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+section.part:last-child{border-bottom:0}
+h2{font:800 30px/1.15 var(--display);margin:0 0 8px;text-wrap:balance}
+h2 .tag{display:inline-block;font:600 13px/1 var(--mono);background:var(--ink);color:var(--paper);padding:6px 8px;border-radius:4px;vertical-align:middle;margin-right:10px;position:relative;top:-4px}
+h3{font:600 20px/1.3 var(--display);margin:32px 0 8px;text-wrap:balance}
+h3 .n{font-family:var(--mono);font-size:14px;color:var(--accent);margin-right:8px}
+p,li{max-width:68ch}
+code{font-family:var(--mono);font-size:.88em;background:var(--sunk);padding:.1em .35em;border-radius:4px}
+.codebox{position:relative;margin:14px 0;background:var(--code-bg);border-radius:8px;overflow:hidden}
+.codebox .lbl{font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--code-dim);padding:10px 14px 0}
+.codebox pre{margin:0;padding:10px 14px 14px;overflow-x:auto;color:var(--code-ink);font:13.5px/1.6 var(--mono);tab-size:2}
+.codebox pre code{background:none;padding:0;font-size:inherit;color:inherit}
+.codebox .c{color:var(--code-dim)} .codebox .k{color:var(--code-key)} .codebox .s{color:var(--code-str)} .codebox .f{color:var(--code-fn)}
+.copy{position:absolute;top:6px;right:6px;font:600 12px var(--mono);background:transparent;color:var(--code-dim);border:1px solid #3a4350;border-radius:5px;padding:4px 8px;cursor:pointer}
+.copy:hover{color:var(--code-ink);border-color:var(--code-dim)}
+.note{border-left:3px solid var(--mark);background:var(--surface);padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0;max-width:72ch}
+.note.warn{border-color:var(--err)}
+.note strong{font-weight:600}
+details.check{background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:18px 0;max-width:72ch}
+details.check summary{cursor:pointer;font-weight:600}
+details.check summary::marker{color:var(--accent)}
+details.check p{margin:.5em 0 0}
+/* Demos */
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:20px 0;overflow:hidden}
+.demo-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.demo-head span{font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.demo-head small{color:var(--muted);font-size:13px}
+.demo-body{padding:18px 16px;display:grid;gap:18px;grid-template-columns:1fr}
+@media (min-width:720px){.demo-body.split{grid-template-columns:1fr 1fr}}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+button.b{font:500 14px var(--body);padding:8px 14px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+button.b:hover{border-color:var(--accent)}
+button.b.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] button.b.primary{color:#0d1330}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) button.b.primary{color:#0d1330}}
+button:focus-visible,input:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.log{font:12.5px/1.55 var(--mono);background:var(--code-bg);color:var(--code-ink);border-radius:6px;padding:10px 12px;min-height:120px;max-height:190px;overflow:auto;margin:0}
+.log div{white-space:pre-wrap;word-break:break-word}
+.log div::before{content:"› ";color:var(--code-key)}
+/* demo 1 */
+.profile{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--paper);transition:background .2s,color .2s}
+.profile.oscuro{background:#1e2530;color:#f1f3f6;border-color:#1e2530}
+.profile h4{font:600 20px var(--display);margin:0}
+.profile p{margin:2px 0 10px;font-size:14px;opacity:.75}
+.profile ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.profile li{font:12px var(--mono);background:var(--mark);color:var(--mark-ink);padding:3px 8px;border-radius:99px}
+/* demo 2 */
+.pad{border:2px dashed var(--line);border-radius:8px;min-height:110px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:14px;user-select:none;padding:12px;cursor:crosshair}
+.pad:hover{border-color:var(--accent)}
+.todo-form{display:flex;gap:8px}
+.todo-form input{flex:1;min-width:0}
+.todo{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.todo li{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--paper)}
+.todo .txt{flex:1;background:none;border:0;text-align:left;font:inherit;color:inherit;cursor:pointer;padding:2px}
+.todo li.hecha .txt{text-decoration:line-through;color:var(--muted)}
+.todo .del{background:none;border:0;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:4px}
+.todo .del:hover{color:var(--err)}
+.count{font-size:13px;color:var(--muted);margin-top:8px}
+/* demo 3 form */
+.f-grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media (min-width:640px){.f-grid{grid-template-columns:1fr 1fr}.f-grid .full{grid-column:1/-1}}
+.campo label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+.campo .hint{font-size:12.5px;color:var(--muted);margin:0 0 4px}
+input.i,select.i{width:100%;font:15px var(--body);padding:9px 11px;border-radius:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+input.i[aria-invalid="true"]{border-color:var(--err);background:var(--err-soft)}
+input.i[aria-invalid="false"]{border-color:var(--ok)}
+.error{color:var(--err);font-size:13px;margin:4px 0 0;min-height:1.2em}
+.meter{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;width:0;background:var(--err);transition:width .2s,background .2s}
+.meter-lbl{font-size:12px;color:var(--muted)}
+.ok-panel{border:1px solid var(--ok);background:var(--ok-soft);border-radius:8px;padding:14px 16px}
+.ok-panel h4{margin:0 0 6px;font:600 16px var(--display);color:var(--ok)}
+.ok-panel dl{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;margin:0;font-size:14px}
+.ok-panel dt{color:var(--muted)}
+.ok-panel dd{margin:0}
+/* tables */
+.tbl{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.pts{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+tfoot td{font-weight:600;background:var(--sunk)}
+.assign-head{background:var(--ink);color:var(--paper);border-radius:10px;padding:20px 22px;margin:8px 0 24px}
+.assign-head h2{color:var(--paper);margin-bottom:6px}
+.assign-head p{margin:0;opacity:.85}
+.assign-head .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.assign-head .chip{font:600 12px var(--mono);background:var(--mark);color:var(--mark-ink);padding:4px 10px;border-radius:99px}
+ul.req{padding-left:20px}
+ul.req li{margin:4px 0}
+ul.tree{font:13.5px/1.7 var(--mono);list-style:none;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;max-width:520px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="eyebrow">Ingeniería Web · Laboratorio guiado</div>
+  <h1>DOM, eventos y validación de formularios en <span class="js">JavaScript</span></h1>
+  <p class="lead">Vas a manipular una página desde JavaScript, reaccionar a lo que hace el usuario y validar un formulario con mensajes claros y accesibles. Cada parte trae código comentado, una demo que puedes probar aquí mismo y una pregunta de control.</p>
+  <div class="meta">
+    <span><b>Duración:</b> 2 sesiones de 90 min</span>
+    <span><b>Requisitos:</b> HTML, CSS, variables y funciones en JS</span>
+    <span><b>Herramientas:</b> VS Code, navegador con DevTools (F12)</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contenido">
+    <div class="inner">
+      <ol>
+                <li><a href="#objetivos">Objetivos</a></li>
+        <li><a href="#dom">1 · El DOM</a></li>
+        <li><a href="#eventos">2 · Eventos</a></li>
+        <li><a href="#validacion">3 · Validación</a></li>
+      </ol>
+    </div>
+  </nav>
+
+  <main>
+    <section class="part" id="objetivos">
+      <h2>Objetivos de aprendizaje</h2>
+      <p>Al terminar el laboratorio podrás:</p>
+      <ul class="req">
+        <li>Seleccionar elementos con <code>querySelector</code> y <code>querySelectorAll</code>, y cambiar su texto, clases y atributos.</li>
+        <li>Crear y eliminar nodos con <code>createElement</code>, <code>append</code> y <code>remove</code>.</li>
+        <li>Registrar manejadores con <code>addEventListener</code>, leer el objeto <code>event</code> y usar delegación de eventos.</li>
+        <li>Validar un formulario combinando atributos HTML5, la API de validación del navegador y reglas propias en JS.</li>
+        <li>Mostrar errores accesibles con <code>aria-invalid</code>, <code>aria-describedby</code> y <code>aria-live</code>.</li>
+      </ul>
+      <div class="note"><strong>Cómo trabajar.</strong> Crea una carpeta <code>lab-dom</code> con un <code>index.html</code> y un <code>app.js</code>. Escribe cada fragmento tú mismo (no copies y pegues todo de golpe) y revisa el resultado en la consola de DevTools.</div>
+      <div class="codebox"><div class="lbl">index.html · punto de partida</div><pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Lab DOM&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1 id="titulo"&gt;Mi primera página dinámica&lt;/h1&gt;
+  &lt;ul id="lista"&gt;&lt;/ul&gt;
+
+  <span class="c">&lt;!-- defer: el script corre cuando el HTML ya está cargado --&gt;</span>
+  &lt;script src="app.js" defer&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+    </section>
+
+    <!-- PARTE 1 -->
+    <section class="part" id="dom">
+      <h2><span class="tag">Parte 1</span>El DOM</h2>
+      <p>El DOM (Document Object Model) es la representación en memoria de tu HTML como un árbol de objetos. Cada etiqueta es un nodo que JavaScript puede leer y modificar. Si cambias el DOM, el navegador vuelve a pintar la página.</p>
+
+      <h3><span class="n">1.1</span>Seleccionar elementos</h3>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> titulo = document.<span class="f">querySelector</span>(<span class="s">'#titulo'</span>);     <span class="c">// primer elemento que coincide</span>
+<span class="k">const</span> items  = document.<span class="f">querySelectorAll</span>(<span class="s">'li'</span>);     <span class="c">// NodeList con todos</span>
+
+console.<span class="f">log</span>(titulo.textContent);
+items.<span class="f">forEach</span>(li =&gt; console.<span class="f">log</span>(li.textContent));</code></pre></div>
+      <p><code>querySelector</code> acepta cualquier selector CSS: <code>'.tarjeta'</code>, <code>'form input[type=email]'</code>, <code>'#menu &gt; li:first-child'</code>. Si no encuentra nada devuelve <code>null</code>.</p>
+
+      <h3><span class="n">1.2</span>Cambiar texto, clases y atributos</h3>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code>titulo.textContent = <span class="s">'¡Hola DOM!'</span>;          <span class="c">// texto seguro</span>
+titulo.classList.<span class="f">add</span>(<span class="s">'destacado'</span>);          <span class="c">// add / remove / toggle / contains</span>
+titulo.<span class="f">setAttribute</span>(<span class="s">'title'</span>, <span class="s">'Encabezado'</span>);
+titulo.dataset.estado = <span class="s">'activo'</span>;           <span class="c">// crea data-estado="activo"</span>
+titulo.style.color = <span class="s">'steelblue'</span>;            <span class="c">// estilo en línea (úsalo poco)</span></code></pre></div>
+      <div class="note warn"><strong>textContent vs innerHTML.</strong> <code>innerHTML</code> interpreta HTML. Si le pasas algo que escribió el usuario, puede inyectar código (XSS). Para mostrar datos del usuario usa siempre <code>textContent</code>.</div>
+
+      <h3><span class="n">1.3</span>Crear y eliminar nodos</h3>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> lista = document.<span class="f">querySelector</span>(<span class="s">'#lista'</span>);
+<span class="k">const</span> lenguajes = [<span class="s">'HTML'</span>, <span class="s">'CSS'</span>, <span class="s">'JavaScript'</span>];
+
+<span class="k">for</span> (<span class="k">const</span> nombre <span class="k">of</span> lenguajes) {
+  <span class="k">const</span> li = document.<span class="f">createElement</span>(<span class="s">'li'</span>);
+  li.textContent = nombre;
+  lista.<span class="f">append</span>(li);                         <span class="c">// lo agrega al final</span>
+}
+
+lista.lastElementChild.<span class="f">remove</span>();           <span class="c">// elimina "JavaScript"</span></code></pre></div>
+
+      <div class="demo">
+        <div class="demo-head"><span>Demo 1 · Manipular una tarjeta</span><small>Pulsa los botones y mira qué instrucción se ejecuta</small></div>
+        <div class="demo-body split">
+          <div>
+            <article class="profile" id="d1-card">
+              <h4 id="d1-name">Ana Pérez</h4>
+              <p>Estudiante de Ingeniería Web</p>
+              <ul id="d1-skills"><li>HTML</li><li>CSS</li></ul>
+            </article>
+            <div class="btns" style="margin-top:12px">
+              <button class="b" id="d1-rename" type="button">Cambiar nombre</button>
+              <button class="b" id="d1-toggle" type="button">Alternar tema</button>
+              <button class="b" id="d1-add" type="button">Agregar habilidad</button>
+              <button class="b" id="d1-del" type="button">Quitar última</button>
+            </div>
+          </div>
+          <div class="log" id="d1-log" aria-live="polite"><div>Esperando acciones…</div></div>
+        </div>
+      </div>
+
+      <details class="check"><summary>Pregunta de control 1</summary>
+        <p>¿Qué devuelve <code>document.querySelector('.inexistente')</code> y qué pasa si luego escribes <code>.textContent = 'x'</code>?</p>
+        <p><em>Respuesta:</em> devuelve <code>null</code>, y asignar una propiedad a <code>null</code> lanza <code>TypeError: Cannot set properties of null</code>. Por eso conviene verificar el resultado o usar <code>?.</code> al leer.</p>
+      </details>
+    </section>
+
+    <!-- PARTE 2 -->
+    <section class="part" id="eventos">
+      <h2><span class="tag">Parte 2</span>Eventos</h2>
+      <p>Un evento es una señal de que algo pasó: un clic, una tecla, un cambio en un campo, el envío de un formulario. Registras una función (manejador) que el navegador ejecuta cuando ocurre.</p>
+
+      <h3><span class="n">2.1</span>addEventListener y el objeto event</h3>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> boton = document.<span class="f">querySelector</span>(<span class="s">'#saludar'</span>);
+
+boton.<span class="f">addEventListener</span>(<span class="s">'click'</span>, (event) =&gt; {
+  console.<span class="f">log</span>(event.type);     <span class="c">// "click"</span>
+  console.<span class="f">log</span>(event.target);   <span class="c">// el elemento que recibió el clic</span>
+});
+
+document.<span class="f">addEventListener</span>(<span class="s">'keydown'</span>, (e) =&gt; {
+  <span class="k">if</span> (e.key === <span class="s">'Escape'</span>) console.<span class="f">log</span>(<span class="s">'Cerrar modal'</span>);
+});</code></pre></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Evento</th><th>Cuándo ocurre</th><th>Uso típico</th></tr></thead>
+        <tbody>
+          <tr><td><code>click</code></td><td>Clic o Enter/Espacio sobre un botón</td><td>Acciones, menús</td></tr>
+          <tr><td><code>input</code></td><td>Cada vez que cambia el valor de un campo</td><td>Validación en vivo, contadores</td></tr>
+          <tr><td><code>change</code></td><td>Al confirmar el cambio (select, checkbox, salir del campo)</td><td>Filtros, opciones</td></tr>
+          <tr><td><code>blur</code> / <code>focus</code></td><td>El campo pierde o gana el foco</td><td>Validar al salir del campo</td></tr>
+          <tr><td><code>keydown</code></td><td>Se presiona una tecla</td><td>Atajos, juegos</td></tr>
+          <tr><td><code>submit</code></td><td>Se envía un formulario</td><td>Validación final</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3><span class="n">2.2</span>Delegación de eventos</h3>
+      <p>En vez de poner un manejador en cada botón de una lista, pones <strong>uno solo en el contenedor</strong>. Los eventos “burbujean” desde el elemento pulsado hacia arriba, y con <code>event.target.closest()</code> averiguas qué se pulsó. Funciona incluso con elementos creados después.</p>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> lista = document.<span class="f">querySelector</span>(<span class="s">'#tareas'</span>);
+
+lista.<span class="f">addEventListener</span>(<span class="s">'click'</span>, (e) =&gt; {
+  <span class="k">const</span> borrar = e.target.<span class="f">closest</span>(<span class="s">'.borrar'</span>);
+  <span class="k">if</span> (borrar) {
+    borrar.<span class="f">closest</span>(<span class="s">'li'</span>).<span class="f">remove</span>();
+    <span class="k">return</span>;
+  }
+  <span class="k">const</span> texto = e.target.<span class="f">closest</span>(<span class="s">'.texto'</span>);
+  <span class="k">if</span> (texto) texto.<span class="f">closest</span>(<span class="s">'li'</span>).classList.<span class="f">toggle</span>(<span class="s">'hecha'</span>);
+});</code></pre></div>
+
+      <h3><span class="n">2.3</span>preventDefault</h3>
+      <p>Algunos elementos tienen un comportamiento por defecto: un formulario recarga la página al enviarse, un enlace navega. <code>event.preventDefault()</code> lo cancela para que tu código decida qué hacer.</p>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code>form.<span class="f">addEventListener</span>(<span class="s">'submit'</span>, (e) =&gt; {
+  e.<span class="f">preventDefault</span>();                <span class="c">// no recargar la página</span>
+  <span class="k">const</span> datos = <span class="k">new</span> <span class="f">FormData</span>(form);
+  console.<span class="f">log</span>(Object.<span class="f">fromEntries</span>(datos));
+});</code></pre></div>
+
+      <div class="demo">
+        <div class="demo-head"><span>Demo 2 · Inspector de eventos y lista con delegación</span><small>Haz clic, doble clic o clic derecho en el recuadro</small></div>
+        <div class="demo-body split">
+          <div>
+            <div class="pad" id="d2-pad" tabindex="0">Interactúa aquí<br>(también puedes enfocarlo y pulsar teclas)</div>
+            <div class="log" id="d2-log" style="margin-top:10px;min-height:90px" aria-live="polite"><div>Sin eventos todavía</div></div>
+          </div>
+          <div>
+            <form class="todo-form" id="d2-form">
+              <label for="d2-input" class="sr" style="position:absolute;left:-9999px">Nueva tarea</label>
+              <input class="i" id="d2-input" placeholder="Nueva tarea y Enter" autocomplete="off">
+              <button class="b primary" type="submit">Agregar</button>
+            </form>
+            <ul class="todo" id="d2-list"></ul>
+            <p class="count" id="d2-count"></p>
+          </div>
+        </div>
+      </div>
+
+      <details class="check"><summary>Pregunta de control 2</summary>
+        <p>Si agregas 100 tareas nuevas a la lista, ¿cuántos manejadores de clic tiene la página con delegación? ¿Y sin delegación?</p>
+        <p><em>Respuesta:</em> con delegación sigue habiendo uno (en el <code>&lt;ul&gt;</code>). Sin delegación tendrías que registrar uno por cada botón nuevo, y olvidarlo es un error muy común.</p>
+      </details>
+    </section>
+
+    <!-- PARTE 3 -->
+    <section class="part" id="validacion">
+      <h2><span class="tag">Parte 3</span>Validación de formularios</h2>
+      <p>Validar en el cliente mejora la experiencia: el usuario corrige antes de enviar. <strong>No reemplaza la validación en el servidor</strong>, porque cualquiera puede saltarse el JavaScript. Trabajaremos en tres capas.</p>
+
+      <h3><span class="n">3.1</span>Capa 1: atributos HTML5</h3>
+      <div class="codebox"><div class="lbl">index.html</div><pre><code>&lt;form id="registro" novalidate&gt;
+  &lt;label for="correo"&gt;Correo&lt;/label&gt;
+  &lt;input id="correo" name="correo" type="email" required
+         aria-describedby="correo-error"&gt;
+  &lt;p id="correo-error" class="error" aria-live="polite"&gt;&lt;/p&gt;
+
+  &lt;label for="cedula"&gt;Cédula&lt;/label&gt;
+  &lt;input id="cedula" name="cedula" required
+         pattern="([1-9]|1[0-3]|PE|E|N)-\d{1,4}-\d{1,6}"
+         placeholder="8-123-4567"&gt;
+&lt;/form&gt;</code></pre></div>
+      <p><code>required</code>, <code>type="email"</code>, <code>minlength</code>, <code>min</code>/<code>max</code> y <code>pattern</code> ya describen las reglas. El atributo <code>novalidate</code> desactiva las burbujas nativas del navegador para que tú muestres los mensajes con tu propio diseño, pero las reglas siguen disponibles desde JS.</p>
+
+      <h3><span class="n">3.2</span>Capa 2: API de validación del navegador</h3>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> correo = document.<span class="f">querySelector</span>(<span class="s">'#correo'</span>);
+
+correo.<span class="f">checkValidity</span>();          <span class="c">// true / false</span>
+correo.validity.valueMissing;     <span class="c">// true si required y está vacío</span>
+correo.validity.typeMismatch;     <span class="c">// true si no parece un correo</span>
+correo.validity.patternMismatch;  <span class="c">// true si no cumple pattern</span>
+correo.validity.tooShort;         <span class="c">// true si no llega a minlength</span>
+
+<span class="c">// Marcar un error propio (cadena vacía = válido)</span>
+correo.<span class="f">setCustomValidity</span>(<span class="s">'Ese correo ya está registrado'</span>);</code></pre></div>
+
+      <h3><span class="n">3.3</span>Capa 3: reglas propias, reutilizables</h3>
+      <p>Guarda las reglas en un objeto: cada función recibe el valor y devuelve <code>true</code> o el mensaje de error. Así una sola función <code>validarCampo</code> sirve para todos los campos.</p>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> reglas = {
+  nombre: v =&gt; v.<span class="f">trim</span>().length &gt;= 3 || <span class="s">'Escribe al menos 3 caracteres.'</span>,
+  correo: v =&gt; /^[^\s@]+@[^\s@]+\.[^\s@]+$/.<span class="f">test</span>(v) || <span class="s">'Usa un correo como nombre@dominio.com.'</span>,
+  cedula: v =&gt; /^([1-9]|1[0-3]|PE|E|N)-\d{1,4}-\d{1,6}$/.<span class="f">test</span>(v) || <span class="s">'Formato: 8-123-4567.'</span>,
+  clave:  v =&gt; (v.length &gt;= 8 &amp;&amp; /[A-Z]/.<span class="f">test</span>(v) &amp;&amp; /\d/.<span class="f">test</span>(v))
+               || <span class="s">'Mínimo 8 caracteres, una mayúscula y un número.'</span>,
+  clave2: v =&gt; v === form.clave.value || <span class="s">'Las contraseñas no coinciden.'</span>,
+};
+
+<span class="k">function</span> <span class="f">validarCampo</span>(input) {
+  <span class="k">const</span> resultado = reglas[input.name](input.value);
+  <span class="k">const</span> valido = resultado === <span class="k">true</span>;
+  <span class="k">const</span> error = document.<span class="f">getElementById</span>(`${input.name}-error`);
+
+  input.<span class="f">setAttribute</span>(<span class="s">'aria-invalid'</span>, String(!valido));
+  error.textContent = valido ? <span class="s">''</span> : resultado;
+  <span class="k">return</span> valido;
+}</code></pre></div>
+
+      <h3><span class="n">3.4</span>Cuándo mostrar los errores</h3>
+      <p>Mostrar un error rojo mientras la persona apenas empieza a escribir es molesto. Un patrón que funciona bien:</p>
+      <ol>
+        <li>Valida un campo <strong>la primera vez al salir</strong> de él (<code>blur</code>) y márcalo como “tocado”.</li>
+        <li>Desde ese momento, revalídalo <strong>en cada tecla</strong> (<code>input</code>), para que el error desaparezca apenas se corrige.</li>
+        <li>Al <strong>enviar</strong> (<code>submit</code>), valida todo y lleva el foco al primer campo con error.</li>
+      </ol>
+      <div class="codebox"><div class="lbl">app.js</div><pre><code><span class="k">const</span> form = document.<span class="f">querySelector</span>(<span class="s">'#registro'</span>);
+<span class="k">const</span> tocados = <span class="k">new</span> <span class="f">Set</span>();
+
+form.<span class="f">addEventListener</span>(<span class="s">'blur'</span>, (e) =&gt; {
+  <span class="k">if</span> (!reglas[e.target.name]) <span class="k">return</span>;
+  tocados.<span class="f">add</span>(e.target.name);
+  <span class="f">validarCampo</span>(e.target);
+}, <span class="k">true</span>);   <span class="c">// true = fase de captura (blur no burbujea)</span>
+
+form.<span class="f">addEventListener</span>(<span class="s">'input'</span>, (e) =&gt; {
+  <span class="k">if</span> (tocados.<span class="f">has</span>(e.target.name)) <span class="f">validarCampo</span>(e.target);
+});
+
+form.<span class="f">addEventListener</span>(<span class="s">'submit'</span>, (e) =&gt; {
+  e.<span class="f">preventDefault</span>();
+  <span class="k">const</span> campos = [...form.elements].<span class="f">filter</span>(el =&gt; reglas[el.name]);
+  <span class="k">const</span> invalidos = campos.<span class="f">filter</span>(el =&gt; !<span class="f">validarCampo</span>(el));
+  <span class="k">if</span> (invalidos.length) { invalidos[0].<span class="f">focus</span>(); <span class="k">return</span>; }
+  <span class="f">mostrarResumen</span>(<span class="k">new</span> <span class="f">FormData</span>(form));
+  form.<span class="f">reset</span>();
+});</code></pre></div>
+
+      <div class="demo">
+        <div class="demo-head"><span>Demo 3 · Registro validado</span><small>Prueba dejar campos vacíos, un correo incompleto o una cédula sin guiones</small></div>
+        <div class="demo-body">
+          <form id="d3-form" novalidate>
+            <div class="f-grid">
+              <div class="campo">
+                <label for="d3-nombre">Nombre</label>
+                <input class="i" id="d3-nombre" name="nombre" autocomplete="off" aria-describedby="nombre-error">
+                <p class="error" id="nombre-error" aria-live="polite"></p>
+              </div>
+              <div class="campo">
+                <label for="d3-correo">Correo</label>
+                <input class="i" id="d3-correo" name="correo" type="email" autocomplete="off" aria-describedby="correo-error">
+                <p class="error" id="correo-error" aria-live="polite"></p>
+              </div>
+              <div class="campo full">
+                <label for="d3-cedula">Cédula</label>
+                <p class="hint">Formato panameño con guiones, por ejemplo 8-123-4567 o PE-12-345</p>
+                <input class="i" id="d3-cedula" name="cedula" autocomplete="off" aria-describedby="cedula-error">
+                <p class="error" id="cedula-error" aria-live="polite"></p>
+              </div>
+              <div class="campo">
+                <label for="d3-clave">Contraseña</label>
+                <input class="i" id="d3-clave" name="clave" type="password" aria-describedby="clave-error d3-meter-lbl">
+                <div class="meter" aria-hidden="true"><i id="d3-meter"></i></div>
+                <span class="meter-lbl" id="d3-meter-lbl">Fuerza: —</span>
+                <p class="error" id="clave-error" aria-live="polite"></p>
+              </div>
+              <div class="campo">
+                <label for="d3-clave2">Confirmar contraseña</label>
+                <input class="i" id="d3-clave2" name="clave2" type="password" aria-describedby="clave2-error">
+                <p class="error" id="clave2-error" aria-live="polite"></p>
+              </div>
+            </div>
+            <div class="btns" style="margin-top:6px">
+              <button class="b primary" type="submit">Crear cuenta</button>
+              <button class="b" type="button" id="d3-fill">Rellenar con ejemplo</button>
+            </div>
+          </form>
+          <div id="d3-ok" hidden></div>
+        </div>
+      </div>
+
+      <details class="check"><summary>Pregunta de control 3</summary>
+        <p>¿Por qué el manejador de <code>blur</code> se registra con <code>true</code> como tercer argumento?</p>
+        <p><em>Respuesta:</em> <code>blur</code> no burbujea. Con <code>true</code> el formulario lo escucha en la fase de captura (de arriba hacia abajo), así que un solo manejador en el <code>&lt;form&gt;</code> sirve para todos los campos. Otra opción es usar <code>focusout</code>, que sí burbujea.</p>
+      </details>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* Copiar código */
+document.querySelectorAll('.codebox').forEach(box => {
+  const btn = document.createElement('button');
+  btn.className = 'copy'; btn.type = 'button'; btn.textContent = 'Copiar';
+  btn.addEventListener('click', async () => {
+    const code = box.querySelector('code');
+    try { await navigator.clipboard.writeText(code.innerText); btn.textContent = 'Copiado'; }
+    catch (e) {
+      const r = document.createRange(); r.selectNodeContents(code);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = 'Seleccionado';
+    }
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+  box.append(btn);
+});
+
+/* Utilidad log */
+function makeLog(el, max = 30) {
+  let first = true;
+  return (msg) => {
+    if (first) { el.textContent = ''; first = false; }
+    const d = document.createElement('div'); d.textContent = msg;
+    el.prepend(d);
+    while (el.children.length > max) el.lastElementChild.remove();
+  };
+}
+
+/* Demo 1 */
+(() => {
+  const log = makeLog(document.getElementById('d1-log'));
+  const card = document.getElementById('d1-card');
+  const name = document.getElementById('d1-name');
+  const skills = document.getElementById('d1-skills');
+  const nombres = ['Ana Pérez', 'Luis Castillo', 'María Rodríguez', 'Carlos Batista'];
+  const extra = ['JavaScript', 'Git', 'Figma', 'Node.js', 'SQL', 'Accesibilidad'];
+  let i = 0, j = 0;
+  document.getElementById('d1-rename').addEventListener('click', () => {
+    i = (i + 1) % nombres.length;
+    name.textContent = nombres[i];
+    log(`nombre.textContent = '${nombres[i]}'`);
+  });
+  document.getElementById('d1-toggle').addEventListener('click', () => {
+    const on = card.classList.toggle('oscuro');
+    log(`tarjeta.classList.toggle('oscuro') → ${on}`);
+  });
+  document.getElementById('d1-add').addEventListener('click', () => {
+    const li = document.createElement('li');
+    li.textContent = extra[j % extra.length]; j++;
+    skills.append(li);
+    log(`createElement('li') + append → "${li.textContent}" (total: ${skills.children.length})`);
+  });
+  document.getElementById('d1-del').addEventListener('click', () => {
+    const last = skills.lastElementChild;
+    if (!last) { log('lastElementChild es null: no hay nada que quitar'); return; }
+    last.remove();
+    log(`lastElementChild.remove() → quitó "${last.textContent}"`);
+  });
+})();
+
+/* Demo 2 */
+(() => {
+  const pad = document.getElementById('d2-pad');
+  const log = makeLog(document.getElementById('d2-log'), 20);
+  const coords = e => {
+    const r = pad.getBoundingClientRect();
+    return `x:${Math.round(e.clientX - r.left)} y:${Math.round(e.clientY - r.top)}`;
+  };
+  pad.addEventListener('click', e => log(`click · ${coords(e)} · target: ${e.target.tagName.toLowerCase()}`));
+  pad.addEventListener('dblclick', e => log(`dblclick · ${coords(e)}`));
+  pad.addEventListener('contextmenu', e => { e.preventDefault(); log('contextmenu · preventDefault() evitó el menú'); });
+  pad.addEventListener('keydown', e => log(`keydown · e.key = "${e.key}"${e.shiftKey ? ' + Shift' : ''}`));
+
+  const form = document.getElementById('d2-form');
+  const input = document.getElementById('d2-input');
+  const list = document.getElementById('d2-list');
+  const count = document.getElementById('d2-count');
+  function addTask(text, done = false) {
+    const li = document.createElement('li');
+    if (done) li.classList.add('hecha');
+    const t = document.createElement('button');
+    t.type = 'button'; t.className = 'txt'; t.textContent = text;
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'del'; del.textContent = '×';
+    del.setAttribute('aria-label', `Borrar "${text}"`);
+    li.append(t, del);
+    list.append(li);
+  }
+  function update() {
+    const total = list.children.length;
+    const pend = list.querySelectorAll('li:not(.hecha)').length;
+    count.textContent = `${pend} pendiente${pend === 1 ? '' : 's'} de ${total} · 1 solo manejador de clic en el <ul>`;
+  }
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const v = input.value.trim();
+    if (!v) { input.focus(); return; }
+    addTask(v); input.value = ''; update();
+  });
+  list.addEventListener('click', e => {
+    const del = e.target.closest('.del');
+    if (del) { del.closest('li').remove(); update(); return; }
+    const t = e.target.closest('.txt');
+    if (t) { t.closest('li').classList.toggle('hecha'); update(); }
+  });
+  addTask('Leer sobre el DOM', true);
+  addTask('Probar la delegación de eventos');
+  addTask('Terminar la tarea A');
+  update();
+})();
+
+/* Demo 3 */
+(() => {
+  const form = document.getElementById('d3-form');
+  const ok = document.getElementById('d3-ok');
+  const meter = document.getElementById('d3-meter');
+  const meterLbl = document.getElementById('d3-meter-lbl');
+  const reglas = {
+    nombre: v => v.trim().length >= 3 || 'Escribe al menos 3 caracteres.',
+    correo: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) || 'Usa un correo como nombre@dominio.com.',
+    cedula: v => /^([1-9]|1[0-3]|PE|E|N)-\d{1,4}-\d{1,6}$/i.test(v.trim()) || 'Formato: 8-123-4567.',
+    clave: v => {
+      const falta = [];
+      if (v.length < 8) falta.push('8 caracteres');
+      if (!/[A-Z]/.test(v)) falta.push('una mayúscula');
+      if (!/\d/.test(v)) falta.push('un número');
+      return falta.length === 0 || `Te falta: ${falta.join(', ')}.`;
+    },
+    clave2: v => (v.length > 0 && v === form.clave.value) || 'Las contraseñas no coinciden.',
+  };
+  const tocados = new Set();
+  function validarCampo(input) {
+    const res = reglas[input.name](input.value);
+    const valido = res === true;
+    input.setAttribute('aria-invalid', String(!valido));
+    document.getElementById(`${input.name}-error`).textContent = valido ? '' : res;
+    return valido;
+  }
+  function fuerza(v) {
+    let p = 0;
+    if (v.length >= 8) p++;
+    if (v.length >= 12) p++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) p++;
+    if (/\d/.test(v)) p++;
+    if (/[^A-Za-z0-9]/.test(v)) p++;
+    const niveles = [
+      ['—', '0%', 'var(--err)'], ['Muy débil', '20%', 'var(--err)'], ['Débil', '40%', 'var(--err)'],
+      ['Aceptable', '60%', 'var(--warn)'], ['Buena', '80%', 'var(--ok)'], ['Fuerte', '100%', 'var(--ok)']
+    ];
+    const [txt, w, c] = v ? niveles[p] : niveles[0];
+    meter.style.width = w; meter.style.background = c;
+    meterLbl.textContent = `Fuerza: ${txt}`;
+  }
+  form.addEventListener('blur', e => {
+    if (!reglas[e.target.name]) return;
+    tocados.add(e.target.name);
+    validarCampo(e.target);
+  }, true);
+  form.addEventListener('input', e => {
+    if (e.target.name === 'clave') {
+      fuerza(e.target.value);
+      if (tocados.has('clave2')) validarCampo(form.clave2);
+    }
+    if (tocados.has(e.target.name)) validarCampo(e.target);
+  });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const campos = [...form.elements].filter(el => reglas[el.name]);
+    campos.forEach(el => tocados.add(el.name));
+    const invalidos = campos.filter(el => !validarCampo(el));
+    if (invalidos.length) { ok.hidden = true; invalidos[0].focus(); return; }
+    const datos = new FormData(form);
+    ok.textContent = '';
+    const panel = document.createElement('div'); panel.className = 'ok-panel';
+    const h = document.createElement('h4'); h.textContent = 'Cuenta creada (sin recargar la página)';
+    const dl = document.createElement('dl');
+    [['Nombre', 'nombre'], ['Correo', 'correo'], ['Cédula', 'cedula']].forEach(([lbl, k]) => {
+      const dt = document.createElement('dt'); dt.textContent = lbl;
+      const dd = document.createElement('dd'); dd.textContent = datos.get(k);
+      dl.append(dt, dd);
+    });
+    panel.append(h, dl); ok.append(panel); ok.hidden = false;
+    form.reset(); tocados.clear(); fuerza('');
+    campos.forEach(el => el.removeAttribute('aria-invalid'));
+  });
+  document.getElementById('d3-fill').addEventListener('click', () => {
+    form.nombre.value = 'Ana Pérez';
+    form.correo.value = 'ana.perez@ejemplo.com';
+    form.cedula.value = '8-123-4567';
+    form.clave.value = 'Panama2026!';
+    form.clave2.value = 'Panama2026!';
+    fuerza(form.clave.value);
+    ['nombre', 'correo', 'cedula', 'clave', 'clave2'].forEach(n => { tocados.add(n); validarCampo(form[n]); });
+  });
+})();
+</script>
+</body>
+</html>
