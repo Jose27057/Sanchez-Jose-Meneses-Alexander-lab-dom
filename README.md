@@ -7,10 +7,6 @@
 - **Curso:** Ingeniería Web · Facultad de Ingeniería de Sistemas Computacionales · UTP
 - **Profesora:** Dra. Elba Valderrama Bahamóndez
 
-## Enlaces
-
-- Repositorio: https://github.com/Jose27057/Sanchez-Jose-Meneses-Alexander-lab-dom
-- GitHub Pages (Tarea 4): https://jose27057.github.io/Sanchez-Jose-Meneses-Alexander-lab-dom/inscripcion/
 
 ## Contenido
 
@@ -21,8 +17,10 @@
 
 ## Capturas
 
-![Errores de validación](capturas/errores.png)
-![Tarjeta de confirmación](capturas/confirmacion.png)
+<img width="814" height="433" alt="image" src="https://github.com/user-attachments/assets/a00b859e-0475-4a16-90a9-f885bef44efe" />
+
+<img width="744" height="378" alt="image" src="https://github.com/user-attachments/assets/59f6cb9e-555a-4094-99b5-ea5e841ca11b" />
+
 
 ## Preguntas de control
 
